@@ -1,0 +1,9 @@
+{
+	"name": "FBSDataFactory8675",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "453dd0c2-800a-42f7-b5c9-4bbd03d31a5b",
+		"tenantId": "bfc639a5-4ff8-4915-9ef2-bc300088ba5f"
+	}
+}
