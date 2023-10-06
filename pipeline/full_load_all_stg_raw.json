@@ -1,0 +1,38 @@
+{
+	"name": "full_load_all_stg_raw",
+	"properties": {
+		"activities": [
+			{
+				"name": "Stg_raw",
+				"description": "This is to get the file and folder details from stg to raw",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select src_folder from [dbo].[stg_raw];",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "config_stg_raw",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"folder": {
+			"name": "Full_load_stg_raw"
+		},
+		"annotations": []
+	}
+}
