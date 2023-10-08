@@ -1,0 +1,98 @@
+{
+	"name": "Execute_Full_Load_Src_stg_raw",
+	"properties": {
+		"description": "This is to execute the full pipeline in realtime",
+		"activities": [
+			{
+				"name": "Execute_src_stg",
+				"description": "This is to execute the pipeline that transfers data from source to stage",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Full_Load_all",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Execute_src_stg",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			},
+			{
+				"name": "Execute_stg_raw",
+				"description": "this pipeline is to transfer data from stage to raw folders",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "full_load_all_stg_raw",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Email",
+				"description": "This is to trigger an email on failure from logic apps",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Execute_stg_raw",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "Execute_src_stg",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-56.eastus.logic.azure.com:443/workflows/06b3f6f3d3014c3788f6ed3ab1a3c8e3/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=WlcioCe98PcHpPFvH02DmOYozyT8Qyyvcrp4ZnuPt4c",
+					"method": "POST",
+					"body": {
+						"value": "{\n    'pipelinename': '@{pipeline().Pipeline}',\n    'datafactoryName': '@{pipeline().DataFactory}',\n    'runid': '@{pipeline().RunId}'\n}",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Execute_full_load"
+		},
+		"annotations": []
+	}
+}
