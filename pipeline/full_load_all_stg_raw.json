@@ -137,6 +137,7 @@
 						},
 						{
 							"name": "LogsOnSuccess",
+							"description": "This is to insert logs on success",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
@@ -157,6 +158,7 @@
 						},
 						{
 							"name": "LogsOnFailure",
+							"description": "This is to insert logs on failure",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
@@ -174,6 +176,45 @@
 								"secureInput": false
 							},
 							"userProperties": []
+						},
+						{
+							"name": "DeleteStgData",
+							"description": "This Step is to delete the staging data.",
+							"type": "Delete",
+							"dependsOn": [
+								{
+									"activity": "CopyStgToRaw",
+									"dependencyConditions": [
+										"Completed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "delete_ds_stage",
+									"type": "DatasetReference",
+									"parameters": {
+										"folders": {
+											"value": "@item().src_folder",
+											"type": "Expression"
+										}
+									}
+								},
+								"enableLogging": true,
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							}
 						}
 					]
 				}
